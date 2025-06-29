@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>boy</title>
+  <style>
+    body {
+      margin: 0;
+      background: #0a0a1a;
+      overflow: hidden;
+      height: 100vh;
+    }
+    canvas {
+      display: block;
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      pointer-events: none;
+    }
+    #music-title {
+      position: fixed;
+      bottom: 16px;
+      right: 24px;
+      left: auto;
+      top: auto;
+      color: #ffb6c1;
+      font-size: 14px;
+      font-family: Arial, sans-serif;
+      text-shadow: 0 0 6px #fff, 0 0 10px #ff69b4;
+      z-index: 10;
+      background: rgba(10,10,26,0.7);
+      padding: 4px 14px;
+      border-radius: 12px;
+      pointer-events: none;
+      opacity: 0.85;
+    }
+    #music-toggle {
+      position: fixed;
+      bottom: 70px;
+      right: 32px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ffb6c1 0%, #ff69b4 100%);
+      box-shadow: 0 0 12px #ff69b4, 0 0 4px #fff;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+      outline: none;
+    }
+    #music-toggle:hover {
+      background: linear-gradient(135deg, #ff69b4 0%, #ffb6c1 100%);
+      box-shadow: 0 0 20px #ff69b4, 0 0 8px #fff;
+      transform: scale(1.08);
+    }
+    #music-toggle svg {
+      width: 28px;
+      height: 28px;
+      fill: #fff;
+    }
+    #play-btn {
+      display: none;
+    }
+    #loveCanvas {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      pointer-events: none;
+      z-index: 5;
+    }
+    #image-container {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+      opacity: 0.96;
+      backdrop-filter: blur(2px);
+      padding: 12px;
+      border-radius: 18px;
+      box-shadow: 0 0 40px 10px rgba(255, 182, 193, 0.25), 0 0 0 4px #fff3;
+      background: rgba(255,255,255,0.08);
+      transition: box-shadow 0.3s, background 0.3s;
+    }
+    #image-container img {
+      max-width: 420px;
+      width: 90vw;
+      max-height: 70vh;
+      border-radius: 16px;
+      border: 3px solid #fff;
+      box-shadow: 0 8px 32px 0 rgba(255, 105, 180, 0.25), 0 0 0 2px #fff8;
+      transition: transform 0.25s, box-shadow 0.25s;
+      background: #fff;
+      object-fit: cover;
+      display: block;
+    }
+    #image-container img:hover {
+      transform: scale(1.04) rotate(-1deg);
+      box-shadow: 0 12px 48px 0 #ff69b4cc, 0 0 0 4px #fff;
+    }
+  </style>
+</head>
+<body>
+<div id="music-title">Nhạc nền: "boy iu em"</div>
+<a href="https://boy.github.com">boy</a>
+<!-- Khi bạn bấm vào chữ "boy", bạn sẽ được chuyển đến: https://boy.github.com -->
+<button id="music-toggle" title="Tắt/mở nhạc">
+  <svg id="icon-music-on" viewBox="0 0 24 24"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"></path></svg>
+  <svg id="icon-music-off" viewBox="0 0 24 24" style="display:none"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03V3h-2v5.03A5.002 5.002 0 0 0 7.5 12c0 2.21 1.79 4 4 4s4-1.79 4-4zm-4 2a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"></path></svg>
+</button>
+<canvas id="loveCanvas"></canvas>
+<canvas id="starCanvas" style="position:fixed;top:0;left:0;width:100vw;height:100vh;pointer-events:none;z-index:1;"></canvas>
+<div id="image-container">
+  <img src="https://www.dropbox.com/scl/fi/0sfxibrmyzyamujdpfowo/Messenger_creation_1648AF0E-AAC5-432D-8FB2-A589A1B11CDA.jpeg?rlkey=045atqw1asw0bvfs32ypzw462&st=pho122lo&raw=1" alt="Hin Heo">
+</div>
+<audio id="loveAudio" src="https://www.dropbox.com/scl/fi/el3gul8ac1upzbitcw93f/SnapTik_App_7495991160670866705.mp3?rlkey=8pgu1sixtrmvoc8nivqlci38q&st=i56wt09v&raw=1" loop></audio>
+<script>
+const messages = [
+  "boy iu em",
+  "boy thương em",
+  "boy nhớ em",
+  "boy mê em",
+  "boy thích em",
+  "boy cần em",
+  "boy yêu em",
+  "boy nguyện bên em",
+  "boy mãi bên em",
+  "boy luôn bên em",
+  "♥",
+  "💖",
+  "💗",
+  "💘",
+  "💝"
+];
+const colors = ["#ffb6c1", "#ff69b4", "#ff1493", "#fff", "#f06292", "#e57373"];
+const fontSizes = [22, 26, 32, 18, 24, 28, 36, 40];
+const canvas = document.getElementById('loveCanvas');
+const ctx = canvas.getContext('2d');
+let W = window.innerWidth, H = window.innerHeight;
+canvas.width = W;
+canvas.height = H;
+
+window.onresize = function() {
+  W = window.innerWidth;
+  H = window.innerHeight;
+  canvas.width = W;
+  canvas.height = H;
+};
+
+function randomMsg() {
+  return messages[Math.floor(Math.random() * messages.length)];
+}
+function randomColor() {
+  return colors[Math.floor(Math.random() * colors.length)];
+}
+function randomFont() {
+  return fontSizes[Math.floor(Math.random() * fontSizes.length)];
+}
+
+function Drop() {
+  this.x = Math.random() * W;
+  this.y = Math.random() * -H;
+  this.text = randomMsg();
+  this.color = randomColor();
+  this.font = randomFont();
+  this.speed = 1.5 + Math.random() * 3.5;
+  this.alpha = 0.7 + Math.random() * 0.3;
+}
+Drop.prototype.draw = function() {
+  ctx.save();
+  ctx.globalAlpha = this.alpha;
+  ctx.font = `bold ${this.font}px Arial`;
+  ctx.shadowColor = this.color;
+  ctx.shadowBlur = 10;
+  ctx.fillStyle = this.color;
+  ctx.fillText(this.text, this.x, this.y);
+  ctx.restore();
+};
+Drop.prototype.update = function() {
+  this.y += this.speed;
+  if (this.y > H + 40) {
+    this.x = Math.random() * W;
+    this.y = Math.random() * -H/2;
+    this.text = randomMsg();
+    this.color = randomColor();
+    this.font = randomFont();
+    this.speed = 1.5 + Math.random() * 3.5;
+    this.alpha = 0.7 + Math.random() * 0.3;
+  }
+};
+
+const drops = [];
+for (let i = 0; i < 100; i++) drops.push(new Drop());
+
+function animate() {
+  ctx.clearRect(0, 0, W, H);
+  for (let d of drops) {
+    d.draw();
+    d.update();
+  }
+  requestAnimationFrame(animate);
+}
+animate();
+
+// Phát nhạc khi click lần đầu
+const audio = document.getElementById('loveAudio');
+let musicStarted = false;
+window.addEventListener('click', function() {
+  if (!musicStarted) {
+    audio.play();
+    musicStarted = true;
+  }
+});
+
+// Nút tắt/mở nhạc
+const musicToggle = document.getElementById('music-toggle');
+const iconOn = document.getElementById('icon-music-on');
+const iconOff = document.getElementById('icon-music-off');
+function updateMusicIcon() {
+  if (audio.paused) {
+    iconOn.style.display = 'none';
+    iconOff.style.display = '';
+  } else {
+    iconOn.style.display = '';
+    iconOff.style.display = 'none';
+  }
+}
+musicToggle.addEventListener('click', function(e) {
+  e.stopPropagation();
+  if (audio.paused) {
+    audio.play();
+  } else {
+    audio.pause();
+  }
+  updateMusicIcon();
+});
+audio.addEventListener('play', updateMusicIcon);
+audio.addEventListener('pause', updateMusicIcon);
+// Đảm bảo icon đúng trạng thái khi tải trang
+updateMusicIcon();
+
+// Hiệu ứng sao lấp lánh nền
+const starCanvas = document.getElementById('starCanvas');
+const starCtx = starCanvas.getContext('2d');
+function resizeStarCanvas() {
+  starCanvas.width = window.innerWidth;
+  starCanvas.height = window.innerHeight;
+}
+resizeStarCanvas();
+window.addEventListener('resize', resizeStarCanvas);
+const stars = [];
+for (let i = 0; i < 120; i++) {
+  stars.push({
+    x: Math.random() * window.innerWidth,
+    y: Math.random() * window.innerHeight,
+    r: Math.random() * 1.2 + 0.3,
+    alpha: Math.random() * 0.7 + 0.3,
+    speed: Math.random() * 0.02 + 0.01,
+    phase: Math.random() * Math.PI * 2
+  });
+}
+function drawStars() {
+  starCtx.clearRect(0, 0, starCanvas.width, starCanvas.height);
+  for (let s of stars) {
+    s.phase += s.speed;
+    let a = s.alpha + Math.sin(s.phase) * 0.3;
+    starCtx.save();
+    starCtx.globalAlpha = Math.max(0, Math.min(1, a));
+    starCtx.beginPath();
+    starCtx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    starCtx.fillStyle = '#fff';
+    starCtx.shadowColor = '#fff';
+    starCtx.shadowBlur = 8;
+    starCtx.fill();
+    starCtx.restore();
+  }
+  requestAnimationFrame(drawStars);
+}
+drawStars();
+</script>
+</body>
+</html>
